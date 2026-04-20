@@ -1,9 +1,13 @@
 from rich.console import Console
+from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 from rich.panel import Panel
+from rich.text import Text
+from rich.align import Align
 import questionary
 import subprocess
 from pathlib import Path
 import time
+import os
 
 console = Console()
 
@@ -17,12 +21,47 @@ EDITORS = {
     "Kiro": "kiro"
 }
 
+# === BANNER ===
+
+
+def show_banner():
+    ascii_art = """
+██████╗ ███████╗██╗    ██╗ █████╗     ██╗      █████╗ ██╗   ██╗███╗   ██╗ ██████╗██╗  ██╗███████╗██████╗ 
+██╔══██╗██╔════╝██║    ██║██╔══██╗    ██║     ██╔══██╗██║   ██║████╗  ██║██╔════╝██║  ██║██╔════╝██╔══██╗
+██║  ██║█████╗  ██║ █╗ ██║███████║    ██║     ███████║██║   ██║██╔██╗ ██║██║     ███████║█████╗  ██████╔╝
+██║  ██║██╔══╝  ██║███╗██║██╔══██║    ██║     ██╔══██║██║   ██║██║╚██╗██║██║     ██╔══██║██╔══╝  ██╔══██╗
+██████╔╝███████╗╚███╔███╔╝██║  ██║    ███████╗██║  ██║╚██████╔╝██║ ╚████║╚██████╗██║  ██║███████╗██║  ██║
+╚═════╝ ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝    ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+    """
+    content = Text(ascii_art, style="bold cyan", justify="center")
+    content.append("\n DewaLauncher v1.0", style="bold white")
+    content.append("\n Your personal dev environment starter\n", style="dim")
+
+    console.print(Align.center(
+        Panel(content, border_style="cyan", padding=(1, 4))))
+
+
+# === CLEAR ===
+
+
+def clear():
+    os.system('clear')
+
+
 # === LOADING ===
 
 
 def loading():
-    with console.status("[bold green]Initializing DevLauncher..."):
-        time.sleep(1.5)
+    with Progress(
+        TextColumn("[bold green]Booting DewaLauncher..."),
+        BarColumn(bar_width=40),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeElapsedColumn(),
+    ) as progress:
+        task = progress.add_task("", total=100)
+        while not progress.finished:
+            progress.advance(task, 1)
+            time.sleep(0.03)  # atur kecepatan di sini
 
 # === GET PROJECTS ===
 
@@ -67,9 +106,9 @@ def open_project(project, editor):
 
 def main():
     loading()
-
-    console.print(Panel("DEWA RAJA LINUX", style="bold blue"))
-
+    clear()
+    show_banner()
+    time.sleep(0.5)
     projects = get_projects()
 
     if not projects:
